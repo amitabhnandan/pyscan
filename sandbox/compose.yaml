@@ -1,0 +1,70 @@
+# Two containers, two networks.
+#
+#   model   -- serves Qwen3-Coder-Next over an OpenAI-compatible API.
+#   scanner -- runs pyscan against the mounted source tree.
+#
+# The "frontend" network connects scanner -> model only. The scanner is NOT
+# attached to any network with a route to the internet. `internal: true` means
+# Docker creates no gateway for it, so nothing on it can reach outside hosts
+# even if egress rules elsewhere change. The egress self-test in pyscan still
+# runs first and hard-fails if this guarantee is ever broken.
+#
+# Swap the `model` service for your own vLLM/Ollama/llama.cpp setup; the only
+# contract is an OpenAI /v1 endpoint on port 8000.
+
+services:
+  model:
+    # Example using vLLM. Replace image/command to match your hardware.
+    # The weights are mounted from the host; nothing is downloaded at run time.
+    # Qwen3-Next models need a recent vLLM; v0.6.x cannot load them.
+    image: vllm/vllm-openai:v0.11.0
+    command: >
+      --model /models/qwen3-coder-next
+      --served-model-name qwen3-coder-next-32k
+      --max-model-len 32768
+      --enable-auto-tool-choice
+      --tool-call-parser qwen3_coder
+    volumes:
+      - ${PYSCAN_MODEL_DIR:?set PYSCAN_MODEL_DIR to the local weights dir}:/models/qwen3-coder-next:ro
+    networks: [frontend]
+    # The model container may need the internet ONLY if you let it pull weights;
+    # we mount them instead, so it can also run on the internal net. Keep it on
+    # frontend only (no default bridge) so it has no internet route either.
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  scanner:
+    build:
+      context: ..
+      dockerfile: sandbox/Dockerfile
+    depends_on: [model]
+    environment:
+      PYSCAN_LLM_BASE_URL: http://model:8000/v1
+      PYSCAN_LLM_MODEL: qwen3-coder-next-32k
+      SEMGREP_RULES_CACHE: /opt/offline-bundle/semgrep-rules
+      SEMGREP_BIN: /usr/local/bin/semgrep
+      # The scan stops if recommended tools or inputs are missing, since no
+      # one can confirm interactively here. Set to 1 to accept the gaps.
+      PYSCAN_ACCEPT_MISSING_TOOLS: ${PYSCAN_ACCEPT_MISSING_TOOLS:-0}
+    volumes:
+      # Source tree is mounted READ-ONLY; findings land in a separate writable
+      # output dir so a scan can never alter the code it is reviewing.
+      - ${PYSCAN_SOURCE_DIR:?set PYSCAN_SOURCE_DIR}:/scan/source:ro
+      - ${PYSCAN_OUTPUT_DIR:?set PYSCAN_OUTPUT_DIR}:/scan/output
+      - ${PYSCAN_BUNDLE_DIR:-./offline-bundle}:/opt/offline-bundle:ro
+      - ${PYSCAN_PRODUCT_CONFIG:?set PYSCAN_PRODUCT_CONFIG}:/scan/product-config.json:ro
+    networks: [frontend]
+    command: >
+      run
+      --product-config /scan/product-config.json
+      --source-repo /scan/source
+      --hunt-mode ${PYSCAN_HUNT_MODE:-FULL_48H}
+
+networks:
+  frontend:
+    internal: true   # no gateway -> no route to the internet for either service

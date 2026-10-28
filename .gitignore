@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+/scan-output/
+**/.hunt/
+offline-bundle/
+/product-config.json
+/scan-run.log
+
+# Kept local, not shared
+/agents/recon-test-gap.toml
+/agents/recon-cve-mapper.toml
+/agents/hunt-redteam-unconstrained.toml
+/docs/output-contract.md

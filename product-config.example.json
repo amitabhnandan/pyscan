@@ -1,0 +1,30 @@
+{
+  "product_key": "unknown-product",
+  "product_name": "Official product name",
+  "product_aliases": [
+    "Common product alias",
+    "Component name"
+  ],
+  "product_versions": "Version family or CVE search window to review",
+  "source_roots": [
+    "app",
+    "services"
+  ],
+  "native_tooling": "not available",
+  "cve_baseline_doc": "not available",
+  "cve_corpus_dir": "not available",
+  "threat_model_doc": "not available",
+  "highest_value_asset": "The most valuable compromise outcome for this product",
+  "known_entry_points": [
+    "Network endpoint, protocol, job, listener, parser, or API entry point"
+  ],
+  "bootstrap_lines": [
+    "No repo-local environment script is required for source analysis by default.",
+    "If this product needs setup first, run or source that setup before invoking scripts/run-local-hunt.sh."
+  ],
+  "extra_context_lines": [
+    "Bias recon and hunt attention toward the highest-value asset and entry points listed in this config."
+  ],
+  "default_hunt_mode": "FULL_48H",
+  "default_optional_keywords": "not enabled"
+}

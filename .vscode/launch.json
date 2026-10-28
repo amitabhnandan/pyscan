@@ -1,0 +1,89 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "pyscan: run hunt (Ollama)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pyscan",
+      "cwd": "${workspaceFolder}",
+      "args": [
+        "run",
+        "--product-config",
+        "${workspaceFolder}/product-config.json",
+        "--source-repo",
+        "/ABSOLUTE/PATH/TO/CODE/TO/SCAN",
+        "--output-dir",
+        "${workspaceFolder}/scan-output",
+        "--hunt-mode",
+        "FULL_48H",
+        "--allow-egress"
+      ],
+      "env": {
+        "PYSCAN_LLM_BASE_URL": "http://localhost:11434/v1",
+        "PYSCAN_LLM_MODEL": "qwen3-coder-next-32k",
+        "PYSCAN_LLM_CONTEXT_TOKENS": "32768"
+      },
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "pyscan: check-model",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pyscan",
+      "cwd": "${workspaceFolder}",
+      "args": [
+        "check-model"
+      ],
+      "env": {
+        "PYSCAN_LLM_BASE_URL": "http://localhost:11434/v1",
+        "PYSCAN_LLM_MODEL": "qwen3-coder-next-32k"
+      },
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "pyscan: run hunt (qwen2.5-coder fallback)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pyscan",
+      "cwd": "${workspaceFolder}",
+      "args": [
+        "run",
+        "--product-config",
+        "${workspaceFolder}/product-config.json",
+        "--source-repo",
+        "/ABSOLUTE/PATH/TO/CODE/TO/SCAN",
+        "--output-dir",
+        "${workspaceFolder}/scan-output",
+        "--hunt-mode",
+        "FULL_48H",
+        "--allow-egress"
+      ],
+      "env": {
+        "PYSCAN_LLM_BASE_URL": "http://localhost:11434/v1",
+        "PYSCAN_LLM_MODEL": "qwen2.5-coder-32k",
+        "PYSCAN_LLM_CONTEXT_TOKENS": "32768",
+        "PYSCAN_LLM_TEMPERATURE": "0.1",
+        "PYSCAN_LLM_TOP_P": "0.9"
+      },
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "pyscan: check-model (qwen2.5-coder fallback)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pyscan",
+      "cwd": "${workspaceFolder}",
+      "args": [
+        "check-model"
+      ],
+      "env": {
+        "PYSCAN_LLM_BASE_URL": "http://localhost:11434/v1",
+        "PYSCAN_LLM_MODEL": "qwen2.5-coder-32k"
+      },
+      "console": "integratedTerminal"
+    }
+  ]
+}

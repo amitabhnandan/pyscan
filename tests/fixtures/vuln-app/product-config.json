@@ -1,0 +1,10 @@
+{
+  "product_key": "vuln-app",
+  "product_name": "Vuln Demo App",
+  "product_versions": "1.x",
+  "source_roots": ["app"],
+  "highest_value_asset": "user credential store",
+  "known_entry_points": ["HTTP POST /login"],
+  "default_hunt_mode": "FULL_48H",
+  "cve_corpus_dir": "not available"
+}
